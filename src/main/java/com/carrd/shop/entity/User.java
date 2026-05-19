@@ -3,6 +3,7 @@ package com.carrd.shop.entity;
 public class User {
     private Long id;
     private String username;
+    private String role;
 
     public Long getId() {
         return id;
@@ -18,5 +19,13 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

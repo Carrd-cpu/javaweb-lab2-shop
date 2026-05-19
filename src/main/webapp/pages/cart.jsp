@@ -12,7 +12,11 @@
 <div id="app" style="max-width: 1000px;margin: 30px auto;">
   <el-row justify="space-between">
     <h2>购物车</h2>
-    <el-button @click="back">返回商品页</el-button>
+    <div>
+      <el-button type="primary" @click="checkout">结算</el-button>
+      <el-button @click="goMyOrders">我的订单</el-button>
+      <el-button @click="back">返回商品页</el-button>
+    </div>
   </el-row>
 
   <el-table :data="list" style="width: 100%;margin-top: 10px;">
@@ -94,9 +98,20 @@ createApp({
     function onPageChange(p){ state.page = p; load(); }
     function onSizeChange(ps){ state.pageSize = ps; state.page = 1; load(); }
     function back(){ window.location.href = "<%=request.getContextPath()%>/pages/products.jsp"; }
+    function goMyOrders(){ window.location.href = "<%=request.getContextPath()%>/pages/my_orders.jsp"; }
+
+    async function checkout(){
+      const res = await axios.post("<%=request.getContextPath()%>/api/order/checkout");
+      if (res.data.code === 0) {
+        ElementPlus.ElMessage.success("结算成功，订单号: " + res.data.data.orderId);
+        load();
+        return;
+      }
+      ElementPlus.ElMessage.error(res.data.msg);
+    }
 
     onMounted(load);
-    return { ...Vue.toRefs(state), load, update, del, onPageChange, onSizeChange, back };
+    return { ...Vue.toRefs(state), load, update, del, onPageChange, onSizeChange, back, goMyOrders, checkout };
   }
 }).use(ElementPlus).mount("#app");
 </script>

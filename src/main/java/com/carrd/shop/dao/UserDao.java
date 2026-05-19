@@ -14,7 +14,7 @@ public class UserDao {
 
     // TODO-DB: 表名/字段若与你不同，改这里 SQL
     public User findByUsernameAndPassword(String username, String password) {
-        String sql = "SELECT id, username FROM t_user WHERE username=? AND password=?";
+        String sql = "SELECT id, username, role FROM t_user WHERE username=? AND password=?";
 
         try (Connection conn = ds.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -27,6 +27,7 @@ public class UserDao {
                 User u = new User();
                 u.setId(rs.getLong("id"));
                 u.setUsername(rs.getString("username"));
+                u.setRole(rs.getString("role"));
                 return u;
             }
         } catch (SQLException e) {

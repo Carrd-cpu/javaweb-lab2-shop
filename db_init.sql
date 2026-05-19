@@ -7,6 +7,8 @@ CREATE DATABASE IF NOT EXISTS shop_mvc DEFAULT CHARSET utf8mb4;
 USE shop_mvc;
 
 DROP TABLE IF EXISTS t_cart_item;
+DROP TABLE IF EXISTS t_order_item;
+DROP TABLE IF EXISTS t_order;
 DROP TABLE IF EXISTS t_product;
 DROP TABLE IF EXISTS t_user;
 
@@ -15,6 +17,7 @@ CREATE TABLE t_user (
   id         BIGINT PRIMARY KEY AUTO_INCREMENT,
   username   VARCHAR(50) NOT NULL UNIQUE,
   password   VARCHAR(100) NOT NULL,
+  role       VARCHAR(20) NOT NULL DEFAULT 'user',
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB;
 
@@ -40,13 +43,33 @@ CREATE TABLE t_cart_item (
   CONSTRAINT fk_cart_product FOREIGN KEY (product_id) REFERENCES t_product(id)
 ) ENGINE=InnoDB;
 
--- 4) 初始化用户
--- 默认账号：admin / 123456
-INSERT INTO t_user(username, password) VALUES
-('admin', '123456'),
-('zhangsan', '123456');
+-- 4) 订单表
+CREATE TABLE t_order (
+  id           BIGINT PRIMARY KEY AUTO_INCREMENT,
+  user_id      BIGINT NOT NULL,
+  total_amount DECIMAL(10,2) NOT NULL,
+  status       VARCHAR(20) NOT NULL,
+  created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_order_user FOREIGN KEY (user_id) REFERENCES t_user(id)
+) ENGINE=InnoDB;
 
--- 5) 初始化商品
+CREATE TABLE t_order_item (
+  id                    BIGINT PRIMARY KEY AUTO_INCREMENT,
+  order_id              BIGINT NOT NULL,
+  product_id            BIGINT NOT NULL,
+  product_name_snapshot VARCHAR(100) NOT NULL,
+  price_snapshot        DECIMAL(10,2) NOT NULL,
+  quantity              INT NOT NULL,
+  CONSTRAINT fk_item_order FOREIGN KEY (order_id) REFERENCES t_order(id)
+) ENGINE=InnoDB;
+
+-- 5) 初始化用户
+-- 默认账号：admin / 123456
+INSERT INTO t_user(username, password, role) VALUES
+('admin', '123456', 'admin'),
+('zhangsan', '123456', 'user');
+
+-- 6) 初始化商品
 INSERT INTO t_product(name, price, stock, cover_url) VALUES
 ('小米手机', 1999.00, 50, NULL),
 ('机械键盘', 299.00, 120, NULL),

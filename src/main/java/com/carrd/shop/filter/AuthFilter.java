@@ -9,7 +9,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.io.IOException;
 
-@WebFilter("/api/cart/*")
+@WebFilter(urlPatterns = {"/api/cart/*", "/api/order/*"})
 public class AuthFilter implements Filter {
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
