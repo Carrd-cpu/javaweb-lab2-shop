@@ -13,6 +13,9 @@
   <el-row justify="space-between">
     <h2>商品列表</h2>
     <div>
+      <el-button @click="goMyOrders">我的订单</el-button>
+      <el-button v-if="isAdmin" type="warning" @click="goAdminProducts">商品管理</el-button>
+      <el-button v-if="isAdmin" type="warning" @click="goAdminOrders">订单管理</el-button>
       <el-button @click="goCart">购物车</el-button>
       <el-button type="danger" @click="logout">退出</el-button>
     </div>
@@ -53,7 +56,8 @@ createApp({
       page: 1,
       pageSize: 8,
       total: 0,
-      list: []
+      list: [],
+      isAdmin: false
     });
 
     async function load(){
@@ -83,11 +87,29 @@ createApp({
       }
     }
 
+    async function loadMe(){
+      const res = await axios.get("<%=request.getContextPath()%>/api/auth/me");
+      if (res.data.code !== 0) {
+        window.location.href = "<%=request.getContextPath()%>/pages/login.jsp";
+        return;
+      }
+      state.isAdmin = res.data.data.role === "admin";
+    }
+
     function onPageChange(p){ state.page = p; load(); }
     function onSizeChange(ps){ state.pageSize = ps; state.page = 1; load(); }
 
     function goCart(){
       window.location.href = "<%=request.getContextPath()%>/pages/cart.jsp";
+    }
+    function goMyOrders(){
+      window.location.href = "<%=request.getContextPath()%>/pages/my_orders.jsp";
+    }
+    function goAdminProducts(){
+      window.location.href = "<%=request.getContextPath()%>/pages/admin_products.jsp";
+    }
+    function goAdminOrders(){
+      window.location.href = "<%=request.getContextPath()%>/pages/admin_orders.jsp";
     }
 
     async function logout(){
@@ -95,8 +117,8 @@ createApp({
       window.location.href = "<%=request.getContextPath()%>/pages/login.jsp";
     }
 
-    onMounted(load);
-    return { ...Vue.toRefs(state), addToCart, onPageChange, onSizeChange, goCart, logout };
+    onMounted(async () => { await loadMe(); await load(); });
+    return { ...Vue.toRefs(state), addToCart, onPageChange, onSizeChange, goCart, goMyOrders, goAdminProducts, goAdminOrders, logout };
   }
 }).use(ElementPlus).mount("#app");
 </script>

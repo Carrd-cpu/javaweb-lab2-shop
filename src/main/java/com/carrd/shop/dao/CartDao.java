@@ -116,4 +116,41 @@ public class CartDao {
             throw new RuntimeException(e);
         }
     }
+
+    public List<CartItemVO> findAllByUserId(Connection conn, Long userId) {
+        String sql = """
+            SELECT p.id AS productId, p.name AS productName, p.price AS price, c.quantity AS quantity
+            FROM t_cart_item c
+            JOIN t_product p ON c.product_id = p.id
+            WHERE c.user_id = ?
+            ORDER BY c.id DESC
+            """;
+        List<CartItemVO> list = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    CartItemVO vo = new CartItemVO();
+                    vo.setProductId(rs.getLong("productId"));
+                    vo.setProductName(rs.getString("productName"));
+                    vo.setPrice(rs.getBigDecimal("price"));
+                    vo.setQuantity(rs.getInt("quantity"));
+                    list.add(vo);
+                }
+            }
+            return list;
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void clearByUserId(Connection conn, Long userId) {
+        String sql = "DELETE FROM t_cart_item WHERE user_id=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, userId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
